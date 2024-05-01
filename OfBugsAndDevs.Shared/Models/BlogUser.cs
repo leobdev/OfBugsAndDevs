@@ -1,14 +1,16 @@
-using Microsoft.AspNetCore.Identity;
-using OfBugsAndDevs.Shared.Models;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace OfBugsAndDevs.Data
+namespace OfBugsAndDevs.Shared.Models
 {
-    // Add profile data for application users by adding properties to the ApplicationUser class
-    public class ApplicationUser : BlogUser
+    public class BlogUser : IdentityUser
     {
-
         [Required]
         [StringLength(50, ErrorMessage = "The {0} must be at least {2} and no more than {1} characters long", MinimumLength = 2)]
         [Display(Name = "First Name")]
@@ -21,9 +23,9 @@ namespace OfBugsAndDevs.Data
 
         [NotMapped]
         [Display(Name = "First Name")]
-        public string FullName { get { return $"{FirstName} {LastName}"; } }
+        public string FullName { get { return  $"{FirstName} {LastName}";  } }
 
-        public byte[]? ImageData { get; set; }
+        public byte[]? ImageData { get; set; } 
 
         public string ContentType { get; set; } = string.Empty;
 
@@ -37,6 +39,6 @@ namespace OfBugsAndDevs.Data
         public virtual ICollection<Blog> Blogs { get; set; } = new HashSet<Blog>();
 
         public virtual ICollection<Post> Posts { get; set; } = new HashSet<Post>();
-    }
 
+    }
 }
