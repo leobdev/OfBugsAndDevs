@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using OfBugsAndDevs.Components.Account.Pages.Manage;
 using OfBugsAndDevs.Data;
 using OfBugsAndDevs.Data.Entities;
+using OfBugsAndDevs.Migrations;
 
 namespace OfBugsAndDevs.Services
 {
@@ -59,6 +62,9 @@ namespace OfBugsAndDevs.Services
 				adminUser = new ApplicationUser();
 				adminUser.Name = AdminAccount.Name;
 				await _userStore.SetUserNameAsync(adminUser, AdminAccount.Email, CancellationToken.None);
+
+				var emailStore = (IUserEmailStore<ApplicationUser>)_userStore;
+				await emailStore.SetEmailAsync(adminUser, AdminAccount.Email, CancellationToken.None);
 				var result = await _userManager.CreateAsync(adminUser, AdminAccount.Password);
 				if (!result.Succeeded)
 				{
