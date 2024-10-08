@@ -41,8 +41,20 @@ namespace OfBugsAndDevs.Services
 			_roleManager = roleManager;
 		}
 
+#if DEBUG
+		private async Task MigrateDatabaseAsync()
+		{
+			if ((await _context.Database.GetPendingMigrationsAsync()).Any())
+			{
+				await _context.Database.MigrateAsync();
+			}
+		}
+#endif
+
 		public async Task SeedDataAsync()
 		{
+			await MigrateDatabaseAsync();
+
 			//Seed AdminRole
 			if (await _roleManager.FindByNameAsync(AdminAccount.Role) is null)
 			{

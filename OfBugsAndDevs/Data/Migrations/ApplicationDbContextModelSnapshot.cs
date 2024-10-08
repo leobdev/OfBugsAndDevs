@@ -285,7 +285,7 @@ namespace OfBugsAndDevs.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("BlogPosts");
+                    b.ToTable("BlogPosts", (string)null);
                 });
 
             modelBuilder.Entity("OfBugsAndDevs.Data.Entities.Category", b =>
@@ -311,7 +311,7 @@ namespace OfBugsAndDevs.Migrations
 
                     b.HasKey("CategoryID");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("OfBugsAndDevs.Data.Entities.Subscriber", b =>
@@ -337,7 +337,7 @@ namespace OfBugsAndDevs.Migrations
 
                     b.HasKey("SubscriberID");
 
-                    b.ToTable("Subscribers");
+                    b.ToTable("Subscribers", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

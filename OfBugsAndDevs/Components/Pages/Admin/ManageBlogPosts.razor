@@ -1,0 +1,47 @@
+﻿@page "/admin/manage-blog-posts"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using OfBugsAndDevs.Data.Entities
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@inject IBlogPostAdminService BlogPostService
+
+<AdminHeader Title="Manage Blog Posts">
+    <ActionButtons>
+        <a href="admin/manage-blog-posts/new" class="btn btn-sm btn-primary">+ Add new Blog Post</a>
+    </ActionButtons>
+</AdminHeader>
+
+@if (_isLoading)
+{
+    <Loader LoaderText="@_loadingText" />
+}
+
+<QuickGrid ItemsProvider="_blogPostsProvider" Pagination="_paginationState">
+    <PropertyColumn Property="@(b => b.BlogPostID)" />
+    <PropertyColumn Property="@(b => b.Title)" />
+</QuickGrid>
+
+<Paginator State="_paginationState" />
+
+@code {
+    private bool _isLoading;
+    private string? _loadingText;
+    private const int PagedSize = 10;
+    private PaginationState _paginationState = new PaginationState
+        {
+            ItemsPerPage = PagedSize
+        };
+    private GridItemsProvider<BlogPost> _blogPostsProvider;
+
+    protected override void OnInitialized()
+    {
+        _blogPostsProvider = async request =>
+        {
+            _isLoading = true;
+            _loadingText = "Loading blog posts...";
+            PagedResult<BlogPost> pagedBlogs = await BlogPostService.GetBlogPostsAsync(request.StartIndex, request.Count ?? PagedSize);
+            _isLoading = false;
+            return GridItemsProviderResult.From(pagedBlogs.records, pagedBlogs.totalCount);
+        };
+    }
+
+}

@@ -1,58 +1,64 @@
-﻿<nav class="topnav navbar navbar-expand-lg navbar-light bg-white fixed-top">
-<div class="container">
-	<a class="navbar-brand" href="/"><strong>Of Bugs & Devs</strong></a>
-		<button onclick="toggleMenu(event)" class="navbar-toggler collapsed" type="button" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
-	<span class="navbar-toggler-icon"></span>
-	</button>
-	<div class="navbar-collapse collapse" id="top-navbar-menu-wrapper" style="">
-		<ul class="navbar-nav mr-auto d-flex align-items-center">
-			<li class="nav-item">
-					<a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
-			</li>
-			<li class="nav-item">
-			<a class="nav-link" href="/category">Culture</a>
-			</li>					  
-			<li class="nav-item">	  
-			<a class="nav-link" href="/category">Tech</a>
-			</li>					  
-			<li class="nav-item">	  
-			<a class="nav-link" href="/category">Politics</a>
-			</li>					  
-			<li class="nav-item">	  
-			<a class="nav-link" href="/category">Health</a>
-			</li>					  
-			<li class="nav-item">	  
-			<a class="nav-link" href="/category">Collections</a>
-			</li>            		  
-			<li class="nav-item">	  
-			<a class="nav-link" href="/category">About</a>
-			</li>
-			<li class="nav-item">
-			<a class="nav-link" href="./docs.html">Template <span class="badge badge-secondary">docs</span></a>
-			</li>
-		</ul>
-		<ul class="navbar-nav ml-auto d-flex align-items-center">
-			
-			<AuthorizeView>
-				<Authorized>
-						<li class="nav-item ">
-							<a class="nav-link" href="/">@context.User.Identity!.Name</a>
-						</li>
-						<li class="nav-item highlight">
-							<a class="nav-link" href="/">Logout</a>
-						</li>
-				</Authorized>
-				<NotAuthorized>
-						<li class="nav-item highlight">
-							<a class="nav-link" href="account/login">Login</a>
-						</li>
-				</NotAuthorized>			
-			</AuthorizeView>
-		</ul>
-	</div>
-</div>
+﻿@using OfBugsAndDevs.Data.Entities
+@inject ICategoryService CategoryService
+
+<nav class="topnav navbar navbar-expand-lg navbar-light bg-white fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="/"><strong>Of Bugs & Devs</strong></a>
+        <button onclick="toggleMenu(event)" class="navbar-toggler collapsed" type="button" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="navbar-collapse collapse" id="top-navbar-menu-wrapper" style="">
+            <ul class="navbar-nav mr-auto d-flex align-items-center">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+                </li>
+
+                @foreach (var category in _categories)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="/category">@category.CategoryName</a>
+                    </li>
+                }
+               
+            </ul>
+            <ul class="navbar-nav ml-auto d-flex align-items-center">
+
+                <AuthorizeView>
+                    <Authorized>
+                        <li class="nav-item ">
+                            <a class="nav-link" href="admin/dashboard">@context.User.GetUserName()</a>
+                        </li>
+                        <li class="nav-item highlight">
+                            <LogoutForm ButtonClasses="nav-link" />
+                        </li>
+                    </Authorized>
+                    <NotAuthorized>
+                        <li class="nav-item highlight">
+                            <a class="nav-link" href="account/login">Login</a>
+                        </li>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </ul>
+        </div>
+    </div>
 </nav>
 
 @code {
+
+    private Category[] _categories = [];
+    private const int MaxCategoriesToSHowOnNavbar = 5;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var categories = await CategoryService.GetCategoriesAsync();
+
+        _categories = categories.Where(c => c.ShowOnNavBar).Take(5).ToArray();
+
+        if (_categories.Length < MaxCategoriesToSHowOnNavbar)
+        {
+            _categories = [.. _categories, .. categories.Where(c => !c.ShowOnNavBar).Take(MaxCategoriesToSHowOnNavbar - _categories.Length)];
+
+        }
+    }
 
 }
