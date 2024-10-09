@@ -1,0 +1,128 @@
+﻿@page "/admin/manage-blog-posts/new"
+@using Blazored.TextEditor
+@using Microsoft.AspNetCore.Components.Sections
+@using OfBugsAndDevs.Data.Entities
+@rendermode InteractiveServer
+@inject IBlogPostAdminService BlogPostService
+@inject ICategoryService CategoryService
+
+<HeadContent>
+    <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link href="//cdn.quilljs.com/1.3.6/quill.bubble.css" rel="stylesheet">
+</HeadContent>
+<SectionContent SectionName="scripts">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="_content/Blazored.TextEditor/quill-blot-formatter.min.js"></script>
+    <script src="_content/Blazored.TextEditor/Blazored-BlazorQuill.js"></script>
+</SectionContent>
+
+<AdminHeader Title="Create a new Blog Post" />
+@if (_isLoading)
+{
+    <Loader LoaderText="@_loadingText" />
+}
+
+<EditForm Model="_model">
+    <DataAnnotationsValidator />
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="mb-3">
+                <label class="col-form-label ml-3">Title</label>
+                <InputText @bind-Value="_model.Title" class="form-control form-control-sm" placeholder="Blog post title" />
+                <ValidationMessage For="() => _model.Title" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label class="col-form-label ml-3">Category</label>
+                <InputSelect @bind-Value="_model.Introduction" class="form-control form-control-sm">
+                    <option value="0">Select category</option>
+                    @foreach (var c in _categories)
+                    {
+                        <option value="@c.CategoryID">@c.CategoryName</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="() => _model.Introduction" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label class="col-form-label ml-3">Introduction</label>
+                <InputText @bind-Value="_model.Introduction" class="form-control form-control-sm" placeholder="Blog post introduction" />
+                <ValidationMessage For="() => _model.Introduction" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label class="col-form-label ml-3 d-block">Upload image</label>
+                <InputFile />
+
+            </div>
+            <div class="mb-3">
+                <label class="col-form-label ml-3">
+                    <InputCheckbox @bind-Value="_model.IsFeatured" class="form-check-input" />
+                    Featured
+                </label>
+            </div>
+            <div class="mb-3">
+                <label class="col-form-label ml-3">
+                    <InputCheckbox @bind-Value="_model.IsPublished" class="form-check-input" />
+                    Published
+                </label>
+            </div>
+            <div class="mb-3 ml-3">
+                <button type="submit" class="btn btn-success">Save</button>
+            </div>
+
+        </div>
+        <div class="col-sm-6">
+            <div class="mb-3">
+                <label class="form-label">Content: </label>
+                <BlazoredTextEditor @ref="@quillHtml" Placeholder="Enter content...">
+                    <ToolbarContent>
+                        <select class="ql-header">
+                            <option selected=""></option>
+                            <option value="1"></option>
+                            <option value="2"></option>
+                            <option value="3"></option>
+                            <option value="4"></option>
+                            <option value="5"></option>
+                        </select>
+                        <span class="ql-formats">
+                            <button class="ql-bold"></button>
+                            <button class="ql-italic"></button>
+                            <button class="ql-underline"></button>
+                            <button class="ql-strike"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <select class="ql-color"></select>
+                            <select class="ql-background"></select>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-list" value="ordered"></button>
+                            <button class="ql-list" value="bullet"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-link"></button>
+                        </span>
+                    </ToolbarContent>
+                    <EditorContent>
+                        @((MarkupString)_model.Content)
+                    </EditorContent>
+                </BlazoredTextEditor>
+
+                <ValidationMessage For="()=> _model.Content" />
+            </div>
+
+        </div>
+    </div>
+
+</EditForm>
+
+@code {
+    private bool _isLoading;
+    private string? _loadingText;
+    private BlogPost _model = new();
+    private Category[] _categories = [];
+    private BlazoredTextEditor? quillHtml;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _categories = await CategoryService.GetCategoriesAsync();
+    }
+
+}
