@@ -21,6 +21,7 @@ namespace OfBugsAndDevs.Data.Entities
 		[Required]
 		public string Content { get; set; }
 
+		[Range(1, int.MaxValue, ErrorMessage = "Please select a valid category")]
 		public int CategoryID { get; set; }
 
 		public string UserID { get; set; }
