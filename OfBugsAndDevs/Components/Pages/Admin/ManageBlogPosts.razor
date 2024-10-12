@@ -3,6 +3,7 @@
 @using OfBugsAndDevs.Data.Entities
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
 @inject IBlogPostAdminService BlogPostService
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <AdminHeader Title="Manage Blog Posts">
     <ActionButtons>
@@ -18,7 +19,7 @@
 <QuickGrid ItemsProvider="_blogPostsProvider" Pagination="_paginationState" class="table table-bordered table-striped table-hover">
     <PropertyColumn Property="@(b => b.BlogPostID)" />
     <TemplateColumn>
-        <div class="py-2" style="display: grid; grid-template-columns: 60px auto; grid-column-gap: 5px;">
+        <div class="py-2" style="display: grid; grid-template-columns: 60px auto; grid-column-gap: 10px;">
             <img src="@context.Image" style="height:60px; width:60px; object-fit:cover" />
             <div>
                 <label class="mb-0 d-block">@context.Title</label>
@@ -35,19 +36,12 @@
     </TemplateColumn>
     <PropertyColumn Property="@(b => b.Category.CategoryName)" Title="Category" />
     <TemplateColumn Title="Published">
-        @if (context.IsPublished)
-        {
-            <label class="text-success">
-                <input type="checkbox" @onchange="@(() => HandlePublishedChanged(context))" checked /> Yes
-            </label>
-        }
-        else
-        {
-            <label class="text-danger">
-                <input type="checkbox" @onchange="@(() => HandlePublishedChanged(context))" /> No
-            </label>
-        }
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" @bind="context.IsPublished" @bind:after="() => HandlePublishedChanged(context)" />
+            <label class="form-check-label">@(context.IsPublished ? "Yes" : "No")</label>
+        </div>
     </TemplateColumn>
+
     <TemplateColumn Title="Featured">
         @if (context.IsFeatured)
         {
@@ -63,11 +57,17 @@
         }
     </TemplateColumn>
     <TemplateColumn>
-        <button href="admin/manageblog-post/edit/@context.BlogPostID" type="button" class="btn btn-sm btn-primary" data-enhance-nav="false">Edit</button>
+        <a href="/admin/manage-blog-posts/edit/@context.BlogPostID" type="button" class="btn btn-sm btn-primary" data-enhance-nav="false">Edit</a>
     </TemplateColumn>
 </QuickGrid>
 
 <Paginator State="_paginationState" />
+
+<style type="text/css">
+    .table > tbody > tr > td{
+        vertical-align: middle;
+    }
+</style>
 
 @code {
     private bool _isLoading;
@@ -85,20 +85,35 @@
         {
             _isLoading = true;
             _loadingText = "Loading blog posts...";
+            StateHasChanged();
+
             PagedResult<BlogPost> pagedBlogs = await BlogPostService.GetBlogPostsAsync(request.StartIndex, request.Count ?? PagedSize);
             _isLoading = false;
+            StateHasChanged();
             return GridItemsProviderResult.From(pagedBlogs.records, pagedBlogs.totalCount);
         };
     }
 
     private async Task HandleFeatureChanged(BlogPost blogPost)
     {
-
+        blogPost.IsFeatured = !blogPost.IsFeatured;
+        await SaveChangesAsync(blogPost);
     }
 
     private async Task HandlePublishedChanged(BlogPost blogPost)
     {
+        //blogPost.IsPublished = !blogPost.IsPublished;
+        await SaveChangesAsync(blogPost);
+    }
 
+    private async Task SaveChangesAsync(BlogPost blogPost)
+    {
+        _isLoading = true;
+        _loadingText = "Saving changes...";
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userID = authState.User.GetUserId();
+        await BlogPostService.SaveBlogPostAsync(blogPost, userID);
+        _isLoading = false;
     }
 
 }

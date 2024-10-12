@@ -21,5 +21,7 @@ namespace OfBugsAndDevs
 
         [GeneratedRegex(@"[^0-9a-z_]")]
         private static partial Regex SlugRegex();
+
+        public static string ToDisplay(this DateTime? dateTime) => dateTime?.ToString("MMM dd") ?? string.Empty; 
     }
 }

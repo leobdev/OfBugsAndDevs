@@ -43,6 +43,7 @@ builder.Services.AddBlazorBootstrap();
 builder.Services.AddTransient<ICategoryService, CategoryService>();
 builder.Services.AddTransient<ISeedService, SeedService>();
 builder.Services.AddTransient<IBlogPostAdminService, BlogPostAdminService>();
+builder.Services.AddTransient<IBlogPostService, BlogPostService>();
 
 var app = builder.Build();
 

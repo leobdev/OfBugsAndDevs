@@ -20,7 +20,7 @@
     <script src="_content/Blazored.TextEditor/Blazored-BlazorQuill.js"></script>
 </SectionContent>
 
-<AdminHeader Title="Create a new Blog Post">
+<AdminHeader Title="@(ID.HasValue && ID > 0 ? "Edit Blog Post" : "Create New Blog Post")">
     <ActionButtons>
         <NavLink href="/admin/manage-blog-posts" class="btn btn-sm btn-primary">Go Back</NavLink>
     </ActionButtons>
@@ -124,7 +124,7 @@
                     <EditorContent>
                         @((MarkupString)_model.Content)
                     </EditorContent>
-                </BlazoredTextEditor>
+                </BlazoredTextEditor>   
 
                 @* <ValidationMessage For="()=> _model.Content" /> *@
             </div>
@@ -149,6 +149,17 @@
     protected override async Task OnInitializedAsync()
     {
         _categories = await CategoryService.GetCategoriesAsync();
+        if(ID.HasValue && ID > 0)
+        {
+            var blogPost = await BlogPostService.GetBlogPostByIdAsync(ID.Value);
+            if(blogPost is null)
+            {
+                NavigationManager.NavigateTo("/admin/manage-blog-posts", replace: true);
+                return;
+            }
+            _model = blogPost;
+            _imageUrl = blogPost.Image;
+        }
     }
 
     private async Task PreviewImageAsync(IBrowserFile file)
@@ -160,8 +171,7 @@
 
         // data:image/type:base64,kjuhgfhdegfhjGJADSGKjsdgfjfd
         _imageUrl = $"data:image/{extension};base64,{Convert.ToBase64String(ms.ToArray())}";
-
-
+     
     }
 
     private async Task HandleFileUpload(InputFileChangeEventArgs e)
