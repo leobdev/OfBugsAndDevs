@@ -97,4 +97,8 @@
     <_ContentIncludedByDefault Remove="Components\Shared\PopularBlogPostsList.razor" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\assets\img\posts\" />
+  </ItemGroup>
+
 </Project>

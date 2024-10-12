@@ -6,6 +6,8 @@
 @inject IBlogPostAdminService BlogPostService
 @inject ICategoryService CategoryService
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IWebHostEnvironment WebHostEnvironment
+@inject NavigationManager NavigationManager
 
 <HeadContent>
     <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
@@ -23,8 +25,9 @@
     <Loader LoaderText="@_loadingText" />
 }
 
-<EditForm Model="_model">
+<EditForm Model="_model" OnValidSubmit="SaveBlogPostAsync">
     <DataAnnotationsValidator />
+    <ValidationSummary/>
     <div class="row">
         <div class="col-sm-6">
             <div class="mb-3">
@@ -71,6 +74,12 @@
                     Published
                 </label>
             </div>
+            @if (string.IsNullOrWhiteSpace(_errorMessage))
+            {
+                <div class="mb-3 ">
+                    <p class="text-danger">@_errorMessage</p>
+                </div>
+            }
             <div class="mb-3 ml-3">
                 <button type="submit" class="btn btn-success">Save</button>
             </div>
@@ -128,6 +137,7 @@
     private BlazoredTextEditor? quillHtml;
     private string? _imageUrl;
     private IBrowserFile? _fileToUpload;
+    private string? _errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
@@ -154,21 +164,62 @@
         _fileToUpload = e.File;
     }
 
+    private async Task<string> SaveFileAsync(IBrowserFile browserfile)
+    {
+        var randomFileName = Path.GetRandomFileName();
+        var extension = Path.GetExtension(browserfile.Name);
+        var folderPath = Path.Combine(WebHostEnvironment.WebRootPath, "img", "posts");
+        Directory.CreateDirectory(folderPath);
+        var fileNamePath = Path.Combine("img", "posts", randomFileName + extension);
+        var fullPath = Path.Combine(WebHostEnvironment.WebRootPath, fileNamePath);
+
+        await using FileStream fs = new FileStream(fullPath, FileMode.Create);
+        try
+        {
+            await browserfile.OpenReadStream().CopyToAsync(fs);
+
+            return fileNamePath.Replace("\\", "/");
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+            fs.Close();
+            return null;
+        }
+    }
     private async Task SaveBlogPostAsync()
     {
-        
-        var content = await quillHtml.GetHTML();
 
+        var content = await quillHtml!.GetHTML();
+        if (string.IsNullOrEmpty(content))
+        {
+            _errorMessage = "Content is required";
+            return;
+
+        }
+        _model.Content = content;
         _loadingText = "Saving blog post...";
         _isLoading = true;
+
+        if (_fileToUpload is not null)
+        {
+            var uploadFileUrl = await SaveFileAsync(_fileToUpload);
+            if (uploadFileUrl is null)
+                return;
+
+            _model.Image = uploadFileUrl;
+        }
+
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var userID = authState.User.GetUserId();
 
-        //if()
-        await BlogPostService.SaveBlogPostAsync(_model, userID);
 
-        _isLoading = false;
+        await BlogPostService.SaveBlogPostAsync(_model, userID);
+        _fileToUpload = null;
+        NavigationManager.NavigateTo("/admin/manage-blog-posts");
+        await Task.Delay(1000);
+        return;
     }
 
 

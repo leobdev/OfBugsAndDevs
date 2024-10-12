@@ -9,16 +9,15 @@ namespace OfBugsAndDevs.Data.Entities
 		[Required, MaxLength(100)]
 		public string Title { get; set; }
 
-		[Required, MaxLength(150)]
+		[MaxLength(150)]
 		public string Slug { get; set; }
 
-		[Required, MaxLength(100)]
+		[MaxLength(100)]
 		public string Image { get; set; }
 
 		[Required, MaxLength(500)]
 		public string Introduction { get; set; }
 
-		[Required]
 		public string Content { get; set; }
 
 		[Range(1, int.MaxValue, ErrorMessage = "Please select a valid category")]

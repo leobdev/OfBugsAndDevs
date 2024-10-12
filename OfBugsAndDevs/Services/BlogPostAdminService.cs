@@ -115,7 +115,7 @@ namespace OfBugsAndDevs.Services
                     }
                 }
 
-                await context.AddRangeAsync();
+                await context.SaveChangesAsync();
                 return blogPost;
             });
         }
