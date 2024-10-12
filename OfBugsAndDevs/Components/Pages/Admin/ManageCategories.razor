@@ -54,13 +54,13 @@
         @if (context.ShowOnNavBar)
         {
             <label class="text-success">
-                <input type="checkbox" @onchange="@(() => HanldeShowOnNavbarChange(context))" checked /> Yes
+                <input type="checkbox" @onchange="@(() => HandleShowOnNavbarChange(context))" checked /> Yes
             </label>
         }
         else
         {
             <label class="text-danger">
-                <input type="checkbox" @onchange="@(() => HanldeShowOnNavbarChange(context))" /> No
+                <input type="checkbox" @onchange="@(() => HandleShowOnNavbarChange(context))" /> No
             </label>
         }
     </TemplateColumn>
@@ -88,7 +88,7 @@
 
     }
 
-    private async Task HanldeShowOnNavbarChange(Category category)
+    private async Task HandleShowOnNavbarChange(Category category)
     {
         _loadingText = "Saving changes...";
         _isLoading = true;

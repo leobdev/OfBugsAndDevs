@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace OfBugsAndDevs.Data.Entities
 {
@@ -7,6 +8,7 @@ namespace OfBugsAndDevs.Data.Entities
 		
 		public int CategoryID { get; set; }
 		[Required, MaxLength(50)]
+		[Display(Name = "Category")]
 		public string CategoryName { get; set; } 
 
 		[MaxLength(100)]

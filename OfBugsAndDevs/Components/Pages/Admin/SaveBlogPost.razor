@@ -1,4 +1,5 @@
 ﻿@page "/admin/manage-blog-posts/new"
+@page "/admin/manage-blog-posts/edit/{id:int?}"
 @using Blazored.TextEditor
 @using Microsoft.AspNetCore.Components.Sections
 @using OfBugsAndDevs.Data.Entities
@@ -19,7 +20,11 @@
     <script src="_content/Blazored.TextEditor/Blazored-BlazorQuill.js"></script>
 </SectionContent>
 
-<AdminHeader Title="Create a new Blog Post" />
+<AdminHeader Title="Create a new Blog Post">
+    <ActionButtons>
+        <NavLink href="/admin/manage-blog-posts" class="btn btn-sm btn-primary">Go Back</NavLink>
+    </ActionButtons>
+</AdminHeader>
 @if (_isLoading)
 {
     <Loader LoaderText="@_loadingText" />
@@ -130,6 +135,8 @@
 </EditForm>
 
 @code {
+    [Parameter]
+    public int? ID { get; set; }
     private bool _isLoading;
     private string? _loadingText;
     private BlogPost _model = new();
@@ -218,7 +225,7 @@
         await BlogPostService.SaveBlogPostAsync(_model, userID);
         _fileToUpload = null;
         NavigationManager.NavigateTo("/admin/manage-blog-posts");
-        await Task.Delay(1000);
+        //await Task.Delay(1000);
         return;
     }
 
