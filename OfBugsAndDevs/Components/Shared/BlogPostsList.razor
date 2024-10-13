@@ -12,7 +12,7 @@
                 @post.Introduction
             </p>
             <div class="card-text text-muted small">
-                @post.User.Name in <a href="category">@post.Category.CategoryName</a>
+                @post.User.Name in <a href="@post.Category.Slug-posts" title="@post.Category.CategoryName">@post.Category.CategoryName</a>
             </div>
             <small class="text-muted">@post.Published.ToDisplay()</small>
         </div>
@@ -22,36 +22,6 @@
 }
 
 
-<div class="mb-3 d-flex justify-content-between">
-    <div class="pr-3">
-        <h2 class="mb-1 h4 font-weight-bold">
-            <a class="text-dark" href="./article.html">East Antarctica's glaciers are stirring</a>
-        </h2>
-        <p>
-            Nasa says it has detected the first signs of significant melting in a swathe of glaciers in East Antarctica.
-        </p>
-        <div class="card-text text-muted small">
-            Jake Bittle in SCIENCE
-        </div>
-        <small class="text-muted">Dec 12 &middot; 5 min read</small>
-    </div>
-    <img height="120" src="./assets/img/demo/1.jpg">
-</div>
-<div class="mb-3 d-flex justify-content-between">
-    <div class="pr-3">
-        <h2 class="mb-1 h4 font-weight-bold">
-            <a class="text-dark" href="./article.html">50 years ago, armadillos hinted that DNA wasn’t destiny</a>
-        </h2>
-        <p>
-            Nasa says it has detected the first signs of significant melting in a swathe of glaciers in East Antarctica.
-        </p>
-        <div class="card-text text-muted small">
-            Jake Bittle in SCIENCE
-        </div>
-        <small class="text-muted">Dec 12 &middot; 5 min read</small>
-    </div>
-    <img height="120" src="./assets/img/demo/5.jpg">
-</div>
 @code {
     [Parameter, EditorRequired]
     public BlogPost[] Posts { get; set; } = [];

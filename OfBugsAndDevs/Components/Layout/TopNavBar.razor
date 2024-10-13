@@ -16,7 +16,7 @@
                 @foreach (var category in _categories)
                 {
                     <li class="nav-item">
-                        <a class="nav-link" href="/category">@category.CategoryName</a>
+                        <a class="nav-link" href="@category.Slug-posts" title="@category.CategoryName">@category.CategoryName</a>
                     </li>
                 }
                

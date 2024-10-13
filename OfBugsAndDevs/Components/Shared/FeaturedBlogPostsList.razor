@@ -32,7 +32,7 @@
                                 <a class="text-dark" href="details">@post.Title</a>
                             </h2>
                             <div class="card-text text-muted small">
-                                @post.User.Name in <a href="/category">@post.Category.CategoryName</a>
+                                @post.User.Name in <a href="@post.Category.Slug-posts" title="@post.Category.CategoryName">@post.Category.CategoryName</a>
                             </div>
                             <small class="text-muted">@post.Published.ToDisplay()</small>
                         </div>

@@ -8,7 +8,7 @@
                     <a href="./article.html" class="text-dark">@post.Title</a>
                 </h6>
                 <p class="text-muted">
-                    @post.User.Name in <a href="category">@post.Category.CategoryName</a>
+                    @post.User.Name in <a href="@post.Category.Slug-posts" title="@post.Category.CategoryName">@post.Category.CategoryName</a>
                 </p>
             </span>
         </li>
