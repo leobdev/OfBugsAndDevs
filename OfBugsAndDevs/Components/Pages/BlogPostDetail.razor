@@ -2,6 +2,7 @@
 @using OfBugsAndDevs.Data.Entities
 @inject NavigationManager NavigationManager
 @inject IBlogPostService BlogPostService
+@inject IBlogPostAdminService BlogPostAdminService
 
 @if (_blogPost.BlogPostID > 0)
 {
@@ -67,6 +68,15 @@
 
         _blogPost = result.BlogPost;
         _relatedPosts = result.RelatedBlogPost;
+
+        await UpdateViewsAsync(_blogPost);
+    }
+
+
+    private async Task UpdateViewsAsync(BlogPost blogPost)
+    {
+        blogPost.ViewCount++;
+        await BlogPostAdminService.SaveBlogPostAsync(blogPost, blogPost.UserID);
     }
 
 }

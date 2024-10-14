@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using OfBugsAndDevs.Components.Account.Pages.Manage;
 using OfBugsAndDevs.Data;
 using OfBugsAndDevs.Data.Entities;
-using OfBugsAndDevs.Migrations;
 
 namespace OfBugsAndDevs.Services
 {

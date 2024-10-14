@@ -1,0 +1,47 @@
+﻿@page "/admin/manage-subscribers"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using OfBugsAndDevs.Data.Entities
+@inject ISubscribeService SubscribeService
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+@if (_isLoading)
+{
+    <Loader LoaderText="Fetching subscribers" />
+}
+
+<AdminHeader Title="Manage Subscribers" />
+<QuickGrid ItemsProvider="_subscriberProvider" Pagination="_paginationState" Class="table table-bordered table-striped">
+    <PropertyColumn Property="c => c.SubscriberName" />
+    <PropertyColumn Property="c => c.Email" />
+    <PropertyColumn Property="c => c.SSubscribedOn" Format="MMM-dd-yyyy hh:mm:ss" Title="Subscribed On"/>
+</QuickGrid>
+<Paginator State="_paginationState"/>
+
+@code {
+    private bool _isLoading;
+    private GridItemsProvider<Subscriber>? _subscriberProvider;
+
+    private const int PageSize = 5;
+    private PaginationState _paginationState = new()
+        {
+            ItemsPerPage = PageSize,
+
+        };
+
+    protected override void OnInitialized()
+    {
+        _subscriberProvider = async request =>
+        {
+            _isLoading = true;
+            StateHasChanged();
+            PagedResult<Subscriber> result = await SubscribeService.GetSubscribersAsync(request.StartIndex, request.Count ?? PageSize);
+
+            _isLoading = false;
+            StateHasChanged();
+
+            return GridItemsProviderResult.From(result.records, result.totalCount);
+
+        };
+    }
+
+}
