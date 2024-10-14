@@ -16,13 +16,13 @@
                     </div>
                     <div class="card-body px-0 pb-0 d-flex flex-column align-items-start">
                         <h2 class="h2 font-weight-bold">
-                            <a class="text-dark" href="details">@_featured.Title</a>
+                            <a class="text-dark" href="posts/@_featured.Slug">@_featured.Title</a>
                         </h2>
                         <p class="card-text">
                             @_featured.Introduction
                         </p>
                         <div>
-                            <small class="d-block"><a class="text-muted" href="./author.html">@_featured.User.Name</a></small>
+                            <small class="d-block"><a class="text-muted" href="">@_featured.User.Name</a></small>
                             <small class="text-muted">@_featured.Published.ToDisplay()</small>
                         </div>
                     </div>
@@ -30,6 +30,12 @@
 
                 <h5 class="font-weight-bold spanborder"><span>Latest</span></h5>
                 <BlogPostsList Posts="_recent" />
+                <hr />
+                <br />
+
+                <div>
+                    <a href="@CategorySlug-posts/all" class="btn btn-lg btn-block  btn-outline-dark float-right">All @_category?.CategoryName Posts</a>
+                </div>
             }
             else
             {

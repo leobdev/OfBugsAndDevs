@@ -19,15 +19,16 @@
                         <a class="nav-link" href="@category.Slug-posts" title="@category.CategoryName">@category.CategoryName</a>
                     </li>
                 }
-               
+
             </ul>
             <ul class="navbar-nav ml-auto d-flex align-items-center">
 
                 <AuthorizeView>
                     <Authorized>
-                        <li class="nav-item highlight">
-                            <a class="nav-link" href="admin/dashboard">@context.User.GetUserName()</a>
+                        <li class="nav-item line-highlight">
+                            <a class="nav-link " href="admin/dashboard">Manage Blog</a>
                         </li>
+                       
                         <li class="nav-item highlight">
                             <LogoutForm ButtonClasses="nav-link" />
                         </li>

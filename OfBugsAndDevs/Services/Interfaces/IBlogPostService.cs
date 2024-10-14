@@ -9,6 +9,7 @@ namespace OfBugsAndDevs.Services.Interfaces
         public Task<BlogPost[]> GetPopularBlogPostsAsync(int count, int categoryID = 0);
         public Task<BlogPost[]> GetRecentBlogPostsAsync(int count, int categoryID = 0);
         public Task<DetailedPageModel> GetBlogPostBySlugAsync(string slug);
+        public Task<BlogPost[]> GetBlogPostsAsync(int pageIndex, int pageSize, int categoryID = 0);
         
     }
 }

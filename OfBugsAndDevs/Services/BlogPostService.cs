@@ -101,7 +101,15 @@ namespace OfBugsAndDevs.Services
             });
         }
 
-        public async Task<BlogPost[]> GetRecentBlogPostsAsync(int count, int categoryID = 0)
+        public async Task<BlogPost[]> GetRecentBlogPostsAsync(int count, int categoryID = 0) => 
+            await GetPostsAsync(0, count, categoryID);
+
+        public async Task<BlogPost[]> GetBlogPostsAsync(int pageIndex, int pageSize, int categoryID = 0) => 
+            await GetPostsAsync(pageIndex * pageSize, pageSize, categoryID);
+                
+        
+
+        private async Task<BlogPost[]> GetPostsAsync(int skip, int take, int categoryID)
         {
             return await QueryOnContextAsync(async context =>
             {
@@ -115,7 +123,8 @@ namespace OfBugsAndDevs.Services
                 }
 
                 return await query.OrderByDescending(b => b.Published)
-                            .Take(count)
+                            .Skip(skip)
+                            .Take(take)
                             .ToArrayAsync();
             });
         }
