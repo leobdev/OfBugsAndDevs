@@ -44,6 +44,8 @@ builder.Services.AddTransient<ICategoryService, CategoryService>();
 builder.Services.AddTransient<ISeedService, SeedService>();
 builder.Services.AddTransient<IBlogPostAdminService, BlogPostAdminService>();
 builder.Services.AddTransient<IBlogPostService, BlogPostService>();
+builder.Services.AddTransient<ISubscribeService, SubscribeService>();
+
 
 var app = builder.Build();
 
