@@ -32,7 +32,7 @@
 
 <EditForm Model="_model" OnValidSubmit="SaveBlogPostAsync">
     <DataAnnotationsValidator />
-    <ValidationSummary/>
+    <Microsoft.AspNetCore.Components.Forms.ValidationSummary />
     <div class="row">
         <div class="col-sm-6">
             <div class="mb-3">
@@ -235,7 +235,7 @@
         await BlogPostService.SaveBlogPostAsync(_model, userID);
         _fileToUpload = null;
         NavigationManager.NavigateTo("/admin/manage-blog-posts");
-        //await Task.Delay(1000);
+        await Task.Delay(1000);
         return;
     }
 

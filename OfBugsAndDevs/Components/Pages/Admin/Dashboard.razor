@@ -1,6 +1,90 @@
 ﻿@page "/admin/dashboard"
 
+@inject IBlogPostService BlogPostService
+@inject ICategoryService CategoryService
+@inject ISubscribeService SubscribeService
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+
 @layout AdminLayout
 
 <AdminHeader Title="Dashboard" />
-<p>Dashboard Content</p>
+
+
+<LineChart TItem="int" @ref="viewCountPerPostChart">
+    <LineChartOptions Title="View Count Per Post" />
+    <LineChartDataset TItem="int" Label="Posts" Data="@viewCountsPerPost" />
+</LineChart>
+
+<PieChart TItem="int" @ref="viewCountPerCategoryChart">
+    <PieChartOptions Title="View Count Per Category" />
+    <PieChartDataset TItem="int" Label="Categories" Data="@viewCountsPerCategory" BackgroundColor="@categoryColors" />
+</PieChart>
+
+<BarChart TItem="int" @ref="subscribersPerMonthChart">
+    <BarChartOptions Title="Subscribers Per Month" />
+    <BarChartDataset TItem="int" Label="Subscribers" Data="@subscribersPerMonth" />
+</BarChart>
+
+
+
+@code {
+    private bool _isInitialized = false;
+    private LineChart<int> viewCountPerPostChart;
+    private PieChart<int> viewCountPerCategoryChart;
+    private BarChart<int> subscribersPerMonthChart;
+
+    private List<int> viewCountsPerPost = new();
+    private List<int> viewCountsPerCategory = new();
+    private List<int> subscribersPerMonth = new();
+    private List<string> categoryColors = new() { "#FF6384", "#36A2EB", "#FFCE56" }; // Example category colors
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadChartDataAsync();
+        Console.WriteLine("OnInitializedAsync called.");
+    }
+
+    private async Task LoadChartDataAsync()
+    {
+        // Fetch all blog posts
+        var blogPosts = await BlogPostService.GetAllPostsAsync();
+        viewCountsPerPost = blogPosts.Select(p => p.ViewCount).ToList();
+
+        // Fetch all categories and calculate view counts per category
+        var categories = await CategoryService.GetCategoriesAsync();
+        viewCountsPerCategory = categories
+            .Select(c => blogPosts.Where(b => b.CategoryID == c.CategoryID)
+            .Sum(b => b.ViewCount))
+            .ToList();
+
+        // Fetch data for subscribers per month
+        var pagedSubscribers = await SubscribeService.GetSubscribersAsync(0, int.MaxValue); // Fetch all subscribers
+        var subscribers = pagedSubscribers.records; // Access the underlying collection of subscribers
+
+        subscribersPerMonth = subscribers
+            .GroupBy(s => s.SSubscribedOn.Month)
+            .OrderBy(g => g.Key)
+            .Select(g => g.Count())
+            .ToList();
+      
+        await viewCountPerPostChart.Update();
+        await viewCountPerCategoryChart.Update();
+        await subscribersPerMonthChart.Update();
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_isInitialized)
+        {
+            // Update charts after the first render and JavaScript interop is available
+         
+
+            _isInitialized = true; // Ensure this happens only once
+        }
+
+    }
+
+   
+}

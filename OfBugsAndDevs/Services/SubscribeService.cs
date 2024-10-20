@@ -15,18 +15,23 @@ namespace OfBugsAndDevs.Services
             _contextFactory = contextFactory;
         }
 
-        public async Task<PagedResult<Subscriber>> GetSubscribersAsync(int startIndex, int pagSize)
+        public async Task<PagedResult<Subscriber>> GetSubscribersAsync(int startIndex = 0, int pageSize = int.MaxValue)
         {
             using var context = _contextFactory.CreateDbContext();
-            var query = context.Subscribers
-                                .AsNoTracking()
-                                .OrderByDescending(s => s.SSubscribedOn);
+            IOrderedQueryable<Subscriber> query = context.Subscribers
+                                                          .AsNoTracking()
+                                                          .OrderByDescending(s => s.SSubscribedOn); // Updated type here
 
+            // Get the total count of subscribers
             var totalCount = await query.CountAsync();
-                               
-            var records = await query.Skip(startIndex)
-                                     .Take(pagSize)
-                                     .ToArrayAsync();
+
+            // Apply pagination only if pageSize is less than int.MaxValue
+            if (pageSize != int.MaxValue)
+            {
+                query = (IOrderedQueryable<Subscriber>)query.Skip(startIndex).Take(pageSize);
+            }
+
+            var records = await query.ToArrayAsync();
 
             return new PagedResult<Subscriber>(records, totalCount);
         }

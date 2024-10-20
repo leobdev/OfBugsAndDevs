@@ -7,5 +7,6 @@ namespace OfBugsAndDevs.Services.Interfaces
         Task<Category[]> GetCategoriesAsync();
         Task<Category?> GetCategoryBySlugAsync(string slug);
         Task<Category> SaveCategoryAsync(Category category);
+        Task DeleteCategoryAsync(int categoryID, string userID);
     }
 }

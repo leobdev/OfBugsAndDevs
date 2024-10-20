@@ -82,5 +82,22 @@ namespace OfBugsAndDevs.Services
                .AsNoTracking()
                .FirstOrDefaultAsync(c => c.Slug == slug));
 
+
+
+        public async Task DeleteCategoryAsync(int categoryID, string userID)
+        {
+            await ExecuteOnContext(async context =>
+            {
+                var category = await context.Categories.FindAsync(categoryID);
+
+                if (category != null)
+                {
+                    context.Categories.Remove(category);
+                    await context.SaveChangesAsync();
+                }
+
+                return Task.CompletedTask;
+            });
+        }
     }
 }

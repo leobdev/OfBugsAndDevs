@@ -28,7 +28,7 @@ namespace OfBugsAndDevs.Services
             {
                 var query = context.BlogPosts
                                    .AsNoTracking();
-                                   
+
                 var count = await query.CountAsync();
 
                 var records = await query.Include(b => b.Category)
@@ -38,7 +38,7 @@ namespace OfBugsAndDevs.Services
                                          .ToArrayAsync();
 
 
-                return  new PagedResult<BlogPost>(records, count);
+                return new PagedResult<BlogPost>(records, count);
             });
         }
 
@@ -49,16 +49,16 @@ namespace OfBugsAndDevs.Services
                               .Include(b => b.Category)
                               .FirstOrDefaultAsync(b => b.BlogPostID == id)
              );
-           
 
-        
+
+
 
 
         public Task<BlogPost> SaveBlogPostAsync(BlogPost blogPost, string userID)
         {
             return ExecuteOnContext(async context =>
             {
-                if(blogPost.BlogPostID == 0)
+                if (blogPost.BlogPostID == 0)
                 {
                     //new blog post
                     var isDupTitle = await context.BlogPosts
@@ -97,7 +97,8 @@ namespace OfBugsAndDevs.Services
                     dbBlog.Introduction = blogPost.Introduction;
                     dbBlog.Content = blogPost.Content;
                     dbBlog.CategoryID = blogPost.CategoryID;
-                    
+                    dbBlog.ViewCount = blogPost.ViewCount;
+
                     dbBlog.IsFeatured = blogPost.IsFeatured;
                     dbBlog.UserID = blogPost.UserID;
                     dbBlog.IsPublished = blogPost.IsPublished;
@@ -127,13 +128,32 @@ namespace OfBugsAndDevs.Services
                 string originalSlug = blogPost.Title.ToSlug();
                 int count = 1;
                 string slug = originalSlug;
-                while(await context.BlogPosts.AsNoTracking().AnyAsync(b => b.Slug == slug))
+                while (await context.BlogPosts.AsNoTracking().AnyAsync(b => b.Slug == slug))
                 {
-                    slug = $"{originalSlug}-{ count++} ";
+                    slug = $"{originalSlug}-{count++} ";
                 }
                 return slug;
             });
         }
+
+        public async Task DeleteBlogPostsAsync(int blogPostID, string userID)
+        {
+           
+            await ExecuteOnContext(async context =>
+            {
+                var blogPost = await context.BlogPosts.FindAsync(blogPostID);
+
+                if (blogPost is not null)
+                {
+                    context.BlogPosts.Remove(blogPost);
+                    await context.SaveChangesAsync();
+                }
+
+             
+                return Task.CompletedTask;
+            });
+        }
+
 
     }
 }

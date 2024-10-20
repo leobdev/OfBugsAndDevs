@@ -71,8 +71,6 @@
     private BlogPost[] _popular = [];
     private BlogPost[] _recent = [];
     private BlogPost _firstFeatured = default!;
-    // if featured is null, we know there's no posts in this category
-    // as we are fetching the resent blogpost if there is no featured post
     private bool HasPosts => _featured is not null;
 
     protected override async Task OnInitializedAsync()

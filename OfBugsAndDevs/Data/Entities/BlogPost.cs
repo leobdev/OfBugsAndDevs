@@ -15,7 +15,7 @@ namespace OfBugsAndDevs.Data.Entities
 		[MaxLength(100)]
 		public string Image { get; set; }
 
-		[Required, MaxLength(500)]
+        [Required, MaxLength(500)]
 		public string Introduction { get; set; }
 
 		public string Content { get; set; }

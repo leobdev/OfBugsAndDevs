@@ -22,7 +22,7 @@
             <DataAnnotationsValidator />
             <h5>Use a local account to log in.</h5>
             <hr />
-            <ValidationSummary class="text-danger" role="alert" />
+            <Microsoft.AspNetCore.Components.Forms.ValidationSummary class="text-danger" role="alert" />
             <div class="form-floating mb-3">
                 <label for="email" class="form-label">Email</label>
                 <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
@@ -40,7 +40,7 @@
                 </label>
             </div>
             <div>
-                <button type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
+                <button type="submit" class="w-100 btn btn-lg btn-dark">Log in</button>
             </div>
 
         </EditForm>

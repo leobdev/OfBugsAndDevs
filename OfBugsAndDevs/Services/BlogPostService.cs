@@ -106,10 +106,11 @@ namespace OfBugsAndDevs.Services
 
         public async Task<BlogPost[]> GetBlogPostsAsync(int pageIndex, int pageSize, int categoryID = 0) => 
             await GetPostsAsync(pageIndex * pageSize, pageSize, categoryID);
-                
-        
 
-        private async Task<BlogPost[]> GetPostsAsync(int skip, int take, int categoryID)
+        public async Task<BlogPost[]> GetAllPostsAsync() =>
+            await GetPostsAsync();
+
+        private async Task<BlogPost[]> GetPostsAsync(int skip = 0, int take = int.MaxValue, int categoryID = 0)
         {
             return await QueryOnContextAsync(async context =>
             {
@@ -122,13 +123,30 @@ namespace OfBugsAndDevs.Services
                     query = query.Where(b => b.CategoryID == categoryID);
                 }
 
+                if(take != int.MaxValue)
+                {
+                    query = query.Skip(skip).Take(take);
+                }
+
                 return await query.OrderByDescending(b => b.Published)
-                            .Skip(skip)
-                            .Take(take)
-                            .ToArrayAsync();
+                                  .ToArrayAsync();
             });
         }
 
-      
+
+        public async Task<Dictionary<int, int>> GetPostsViewCountsAsync()
+        {
+            return await QueryOnContextAsync(async context =>
+            {
+                // Fetch only the BlogPostID and ViewCount from the database
+                var viewCounts = await context.BlogPosts
+                    .Select(bp => new { bp.BlogPostID, bp.ViewCount })
+                    .ToDictionaryAsync(bp => bp.BlogPostID, bp => bp.ViewCount);
+
+                return viewCounts;
+            });
+        }
+
+
     }
 }

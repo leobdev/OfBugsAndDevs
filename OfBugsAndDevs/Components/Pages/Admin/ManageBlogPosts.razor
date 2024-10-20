@@ -38,30 +38,43 @@
     <TemplateColumn Title="Published">
         <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" role="switch" @bind="context.IsPublished" @bind:after="() => HandlePublishedChanged(context)" />
-            <label class="form-check-label">@(context.IsPublished ? "Yes" : "No")</label>
         </div>
     </TemplateColumn>
 
     <TemplateColumn Title="Featured">
-        @if (context.IsFeatured)
-        {
-            <label class="text-success">
-                <input type="checkbox" @onchange="@(() => HandleFeatureChanged(context))" checked /> Yes
-            </label>
-        }
-        else
-        {
-            <label class="text-danger">
-                <input type="checkbox" @onchange="@(() => HandleFeatureChanged(context))" /> No
-            </label>
-        }
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" @bind="context.IsFeatured" @bind:after="() => HandleFeatureChanged(context)" />
+        </div>
     </TemplateColumn>
-    <TemplateColumn>
-        <a href="/admin/manage-blog-posts/edit/@context.BlogPostID" type="button" class="btn btn-sm btn-primary" data-enhance-nav="false">Edit</a>
+    <TemplateColumn Align="Align.Center" Class="justify-content-center">
+        <a href="/admin/manage-blog-posts/edit/@context.BlogPostID" type="button" class="btn btn-sm btn-outline-primary" data-enhance-nav="false">Edit</a>
+        <button type="button" class="btn btn-sm btn-outline-danger" @onclick="() => OpenDeleteModal(context)">Delete</button>
     </TemplateColumn>
 </QuickGrid>
 
 <Paginator State="_paginationState" />
+
+@if (_showDeleteModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" @onclick="CloseDeleteModal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this post?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseDeleteModal">No</button>
+                    <button type="button" class="btn btn-danger" @onclick="ConfirmDelete">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 
 <style type="text/css">
     .table > tbody > tr > td{
@@ -73,11 +86,26 @@
     private bool _isLoading;
     private string? _loadingText;
     private const int PagedSize = 10;
+    private bool _showDeleteModal = false;
+    private BlogPost? _blogPostToDelete;
     private PaginationState _paginationState = new PaginationState
         {
             ItemsPerPage = PagedSize
         };
     private GridItemsProvider<BlogPost> _blogPostsProvider;
+
+
+    private void OpenDeleteModal(BlogPost blogPost)
+    {
+        _blogPostToDelete = blogPost;
+        _showDeleteModal = true;
+    }
+
+    private void CloseDeleteModal()
+    {
+        _showDeleteModal = false;
+        _blogPostToDelete = null;
+    }
 
     protected override void OnInitialized()
     {
@@ -96,7 +124,7 @@
 
     private async Task HandleFeatureChanged(BlogPost blogPost)
     {
-        blogPost.IsFeatured = !blogPost.IsFeatured;
+        //blogPost.IsFeatured = !blogPost.IsFeatured;
         await SaveChangesAsync(blogPost);
     }
 
@@ -115,5 +143,28 @@
         await BlogPostService.SaveBlogPostAsync(blogPost, userID);
         _isLoading = false;
     }
+
+    // Confirm deletion
+    private async Task ConfirmDelete()
+    {
+        if (_blogPostToDelete != null)
+        {
+            _isLoading = true;
+            _loadingText = "Deleting post...";
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var userID = authState.User.GetUserId();
+
+            // Call your service to delete the blog post
+            await BlogPostService.DeleteBlogPostsAsync(_blogPostToDelete.BlogPostID, userID);
+
+            _isLoading = false;
+            _showDeleteModal = false;
+
+            // Refresh the grid
+            _paginationState = new PaginationState { ItemsPerPage = PagedSize };
+        }
+    }
+
+
 
 }

@@ -10,7 +10,8 @@ namespace OfBugsAndDevs.Data
         [Required, MaxLength(25)]
         public string Name { get; set; }
 
-
+        [MaxLength(100)]
+        public string Avatar { get; set; }
 
     }
 
