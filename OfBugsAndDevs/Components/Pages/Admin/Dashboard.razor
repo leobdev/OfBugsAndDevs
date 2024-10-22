@@ -1,5 +1,6 @@
 ﻿@page "/admin/dashboard"
-
+@using ChartJs.Blazor.PieChart
+@using ChartJs.Blazor.BarChart
 @inject IBlogPostService BlogPostService
 @inject ICategoryService CategoryService
 @inject ISubscribeService SubscribeService
@@ -10,81 +11,141 @@
 
 <AdminHeader Title="Dashboard" />
 
+<div class="container">
+    <div class="row">
+        <div class="col-6">
+            <ChartJs.Blazor.Chart Config="_postsPieConfig" />
 
-<LineChart TItem="int" @ref="viewCountPerPostChart">
-    <LineChartOptions Title="View Count Per Post" />
-    <LineChartDataset TItem="int" Label="Posts" Data="@viewCountsPerPost" />
-</LineChart>
+        </div>
+        <div class="col-6">
+            <ChartJs.Blazor.Chart Config="_categoryPieConfig" />
 
-<PieChart TItem="int" @ref="viewCountPerCategoryChart">
-    <PieChartOptions Title="View Count Per Category" />
-    <PieChartDataset TItem="int" Label="Categories" Data="@viewCountsPerCategory" BackgroundColor="@categoryColors" />
-</PieChart>
-
-<BarChart TItem="int" @ref="subscribersPerMonthChart">
-    <BarChartOptions Title="Subscribers Per Month" />
-    <BarChartDataset TItem="int" Label="Subscribers" Data="@subscribersPerMonth" />
-</BarChart>
+        </div>
+    </div>
+    <div class="row">
+        <di class="col">
+            <ChartJs.Blazor.Chart Config="_subscribersPieConfig" />
+        </di>
+    </div>
+</div>
 
 
 
 @code {
-    private bool _isInitialized = false;
-    private LineChart<int> viewCountPerPostChart;
-    private PieChart<int> viewCountPerCategoryChart;
-    private BarChart<int> subscribersPerMonthChart;
-
-    private List<int> viewCountsPerPost = new();
-    private List<int> viewCountsPerCategory = new();
-    private List<int> subscribersPerMonth = new();
-    private List<string> categoryColors = new() { "#FF6384", "#36A2EB", "#FFCE56" }; // Example category colors
+    private PieConfig? _postsPieConfig;
+    private PieConfig? _categoryPieConfig;
+    private PieConfig? _subscribersPieConfig;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadChartDataAsync();
-        Console.WriteLine("OnInitializedAsync called.");
+
     }
+
+    // After fetching your data, add it to the charts in LoadChartDataAsync()
 
     private async Task LoadChartDataAsync()
     {
-        // Fetch all blog posts
-        var blogPosts = await BlogPostService.GetAllPostsAsync();
-        viewCountsPerPost = blogPosts.Select(p => p.ViewCount).ToList();
+        _postsPieConfig = new PieConfig();
+        _categoryPieConfig = new PieConfig();
+        _subscribersPieConfig = new PieConfig();
 
-        // Fetch all categories and calculate view counts per category
-        var categories = await CategoryService.GetCategoriesAsync();
-        viewCountsPerCategory = categories
-            .Select(c => blogPosts.Where(b => b.CategoryID == c.CategoryID)
-            .Sum(b => b.ViewCount))
-            .ToList();
+        _postsPieConfig.Options = new PieOptions
+            {
+                Responsive = true,
+                Title = new OptionsTitle
+                {
+                    Display = true,
+                    Text = "Most Viewed Post"
+                }
+            };
 
-        // Fetch data for subscribers per month
-        var pagedSubscribers = await SubscribeService.GetSubscribersAsync(0, int.MaxValue); // Fetch all subscribers
-        var subscribers = pagedSubscribers.records; // Access the underlying collection of subscribers
 
-        subscribersPerMonth = subscribers
-            .GroupBy(s => s.SSubscribedOn.Month)
-            .OrderBy(g => g.Key)
-            .Select(g => g.Count())
-            .ToList();
-      
-        await viewCountPerPostChart.Update();
-        await viewCountPerCategoryChart.Update();
-        await subscribersPerMonthChart.Update();
+        _categoryPieConfig.Options = new PieOptions
+            {
+                Responsive = true,
+                Title = new OptionsTitle
+                {
+                    Display = true,
+                    Text = "Most Popular Category"
+                }
+            };
 
-    }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender && !_isInitialized)
+
+        _subscribersPieConfig.Options = new PieOptions
+            {
+                Responsive = true,
+                Title = new OptionsTitle
+                {
+                    Display = true,
+                    Text = "Subscribers Count Per Month"
+                }
+            };
+
+        var posts = await BlogPostService.GetAllPostsAsync();
+
+
+        PieDataset<int> postDataset = new()
+            {
+                BackgroundColor = new[]
+                {
+                ColorUtil.ColorHexString(255, 0, 0),
+                ColorUtil.ColorHexString(0, 255, 0),
+                ColorUtil.ColorHexString(0, 0, 255),
+                ColorUtil.ColorHexString(0, 0, 250)
+                }
+            };
+
+        foreach (var post in posts)
         {
-            // Update charts after the first render and JavaScript interop is available
-         
+            _postsPieConfig.Data.Labels.Add(post.Title);
+            //postDataset.BackgroundColor = ColorUtil.RandomColorString();
+            postDataset.Add(post.ViewCount);
+        }
+        _postsPieConfig.Data.Datasets.Add(postDataset);
 
-            _isInitialized = true; // Ensure this happens only once
+        foreach (var city in new[] { "City 1", "City 2", "City 3" })
+        {
+            PieDataset<int> dataset = new();
+            _categoryPieConfig.Data.Labels.Add(city);
         }
 
+        foreach (var city in new[] { "City 1", "City 2", "City 3" })
+        {
+            _subscribersPieConfig.Data.Labels.Add(city);
+        }
+
+        // var postsDataSet = new PieDataset<int>(new[] { 35, 50, 15 })
+        //     {
+        //         BackgroundColor = new[]
+        //                             {
+        //         ColorUtil.ColorHexString(255, 0, 0),
+        //         ColorUtil.ColorHexString(0, 255, 0),
+        //         ColorUtil.ColorHexString(0, 0, 255)
+        //         }
+        //     };
+
+
+
+
+        // _postsPieConfig.Data.Datasets.Add(postsDataSet);
+
+
     }
 
-   
+
+    // protected override void OnAfterRender(bool firstRender)
+    // {
+    //     if (firstRender && !_isInitialized)
+    //     {
+    //         // Update charts after the first render and JavaScript interop is available
+
+
+    //         _isInitialized = true; // Ensure this happens only once
+    //     }
+
+    // }
+
+
 }
