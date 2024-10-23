@@ -23,8 +23,8 @@
         </div>
     </div>
     <div class="row">
-        <di class="col">
-            <ChartJs.Blazor.Chart Config="_subscribersPieConfig" />
+        <di class="col-10">
+            <ChartJs.Blazor.Chart Config="_subscribersBarConfig" />
         </di>
     </div>
 </div>
@@ -34,7 +34,7 @@
 @code {
     private PieConfig? _postsPieConfig;
     private PieConfig? _categoryPieConfig;
-    private PieConfig? _subscribersPieConfig;
+    private BarConfig? _subscribersBarConfig;
 
     protected override async Task OnInitializedAsync()
     {
@@ -48,7 +48,7 @@
     {
         _postsPieConfig = new PieConfig();
         _categoryPieConfig = new PieConfig();
-        _subscribersPieConfig = new PieConfig();
+        _subscribersBarConfig = new BarConfig();
 
         _postsPieConfig.Options = new PieOptions
             {
@@ -57,7 +57,8 @@
                 {
                     Display = true,
                     Text = "Most Viewed Post"
-                }
+                },
+
             };
 
 
@@ -73,79 +74,125 @@
 
 
 
-        _subscribersPieConfig.Options = new PieOptions
+        _subscribersBarConfig.Options = new BarOptions
             {
                 Responsive = true,
                 Title = new OptionsTitle
                 {
                     Display = true,
                     Text = "Subscribers Count Per Month"
+                },
+                Scales = new BarScales
+                {
+                    YAxes = new List<CartesianAxis>
+                    {
+                        new LinearCartesianAxis
+                        {
+                             Ticks = new LinearCartesianTicks
+                             {
+                                 BeginAtZero = true
+                             }
+                        }
+                    }
+                },
+                Legend = new Legend
+                {
+                    Display = false
                 }
+
             };
 
         var posts = await BlogPostService.GetAllPostsAsync();
 
+        var categories = await CategoryService.GetCategoriesAsync();
+        var categoryViewCounts = posts
+                                .GroupBy(b => b.CategoryID)
+                                .Select(g => new
+                                {
+                                    CategoryID = g.Key,
+                                    ViewCount = g.Sum(b => b.ViewCount)
+                                })
+                                .OrderByDescending(g => g.ViewCount)
+                                .ToList();
 
         PieDataset<int> postDataset = new()
             {
                 BackgroundColor = new[]
                 {
-                ColorUtil.ColorHexString(255, 0, 0),
-                ColorUtil.ColorHexString(0, 255, 0),
-                ColorUtil.ColorHexString(0, 0, 255),
-                ColorUtil.ColorHexString(0, 0, 250)
-                }
+                ColorUtil.ColorHexString(160,177,197),
+                ColorUtil.ColorHexString(217,217,217),
+                ColorUtil.ColorHexString(58,76,117),
+                ColorUtil.ColorHexString(156,138,222),
+                ColorUtil.ColorHexString(168,224,193)
+    }
             };
 
-        foreach (var post in posts)
+        foreach (var post in posts.OrderByDescending(p => p.ViewCount).Take(5))
         {
             _postsPieConfig.Data.Labels.Add(post.Title);
-            //postDataset.BackgroundColor = ColorUtil.RandomColorString();
             postDataset.Add(post.ViewCount);
         }
         _postsPieConfig.Data.Datasets.Add(postDataset);
 
-        foreach (var city in new[] { "City 1", "City 2", "City 3" })
+        PieDataset<int> categoryDataset = new()
+            {
+                BackgroundColor = new[]
         {
-            PieDataset<int> dataset = new();
-            _categoryPieConfig.Data.Labels.Add(city);
+            ColorUtil.ColorHexString(160,177,197),
+            ColorUtil.ColorHexString(217,217,217),
+            ColorUtil.ColorHexString(58,76,117),
+            ColorUtil.ColorHexString(156,138,222),
+            ColorUtil.ColorHexString(168,224,193)
+    }
+            };
+
+        foreach (var categoryView in categoryViewCounts)
+        {
+            var category = categories.FirstOrDefault(c => c.CategoryID == categoryView.CategoryID);
+            if (category != null)
+            {
+                _categoryPieConfig.Data.Labels.Add(category.CategoryName);
+                categoryDataset.Add(categoryView.ViewCount);
+            }
         }
 
-        foreach (var city in new[] { "City 1", "City 2", "City 3" })
+        // Add the dataset to the pie chart
+        _categoryPieConfig.Data.Datasets.Add(categoryDataset);
+
+
+
+        var subscribersList = (await SubscribeService.GetSubscribersAsync()).records.ToList();
+
+        var groupedSubscribers = subscribersList
+            .GroupBy(s => new { s.SSubscribedOn.Year, s.SSubscribedOn.Month })
+            .Select(g => new
+            {
+                MonthYear = new DateTime(g.Key.Year, g.Key.Month, 1),
+                Count = g.Count()
+            })
+            .OrderBy(g => g.MonthYear)
+            .ToList();
+
+
+        BarDataset<int> subscriberDataset = new()
+            {
+                BackgroundColor = new[]
+                {
+                    ColorUtil.ColorHexString(160,177,197),
+                    ColorUtil.ColorHexString(217,217,217),
+                    ColorUtil.ColorHexString(58,76,117),
+                    ColorUtil.ColorHexString(156,138,222),
+                    ColorUtil.ColorHexString(168,224,193)
+            }
+            };
+        foreach (var group in groupedSubscribers)
         {
-            _subscribersPieConfig.Data.Labels.Add(city);
+            _subscribersBarConfig.Data.Labels.Add(group.MonthYear.ToString("MMM yyyy"));
+            subscriberDataset.Add(group.Count);
         }
 
-        // var postsDataSet = new PieDataset<int>(new[] { 35, 50, 15 })
-        //     {
-        //         BackgroundColor = new[]
-        //                             {
-        //         ColorUtil.ColorHexString(255, 0, 0),
-        //         ColorUtil.ColorHexString(0, 255, 0),
-        //         ColorUtil.ColorHexString(0, 0, 255)
-        //         }
-        //     };
-
-
-
-
-        // _postsPieConfig.Data.Datasets.Add(postsDataSet);
-
+        _subscribersBarConfig.Data.Datasets.Add(subscriberDataset);
 
     }
-
-
-    // protected override void OnAfterRender(bool firstRender)
-    // {
-    //     if (firstRender && !_isInitialized)
-    //     {
-    //         // Update charts after the first render and JavaScript interop is available
-
-
-    //         _isInitialized = true; // Ensure this happens only once
-    //     }
-
-    // }
-
 
 }

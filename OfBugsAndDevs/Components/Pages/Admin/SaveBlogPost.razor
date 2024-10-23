@@ -20,119 +20,123 @@
     <script src="_content/Blazored.TextEditor/Blazored-BlazorQuill.js"></script>
 </SectionContent>
 
-<AdminHeader Title="@(ID.HasValue && ID > 0 ? "Edit Blog Post" : "Create New Blog Post")">
-    <ActionButtons>
-        <NavLink href="/admin/manage-blog-posts" class="btn btn-sm btn-primary">Go Back</NavLink>
-    </ActionButtons>
-</AdminHeader>
 @if (_isLoading)
 {
     <Loader LoaderText="@_loadingText" />
 }
 
-<EditForm Model="_model" OnValidSubmit="SaveBlogPostAsync">
-    <DataAnnotationsValidator />
-    <Microsoft.AspNetCore.Components.Forms.ValidationSummary />
-    <div class="row">
-        <div class="col-sm-6">
-            <div class="mb-3">
-                <label class="col-form-label ml-3">Title</label>
-                <InputText @bind-Value="_model.Title" class="form-control form-control-sm" placeholder="Blog post title" />
-                <ValidationMessage For="() => _model.Title" class="text-danger" />
-            </div>
-            <div class="mb-3">
-                <label class="col-form-label ml-3">Category</label>
-                <InputSelect @bind-Value="_model.CategoryID" class="form-control form-control-sm">
-                    <option value="0">Select category</option>
-                    @foreach (var c in _categories)
-                    {
-                        <option value="@c.CategoryID">@c.CategoryName</option>
-                    }
-                </InputSelect>
-                <ValidationMessage For="() => _model.CategoryID" class="text-danger" />
-            </div>
-            <div class="mb-3">
-                <label class="col-form-label ml-3">Introduction</label>
-                <InputText @bind-Value="_model.Introduction" class="form-control form-control-sm" placeholder="Blog post introduction" />
-                <ValidationMessage For="() => _model.Introduction" class="text-danger" />
-            </div>
-            <div class="mb-3">
-                <label class="col-form-label ml-3 d-block">Upload image</label>
-                <InputFile OnChange="HandleFileUpload" />
+<div class="container">
+    <AdminHeader Title="@(ID.HasValue && ID > 0 ? "Edit Blog Post" : "Create New Blog Post")">
+        <ActionButtons>
+            <NavLink href="/admin/manage-blog-posts" class="btn btn-sm btn-outline-gray">Go Back</NavLink>
+        </ActionButtons>
+    </AdminHeader>
 
-            </div>
-            @if (!string.IsNullOrWhiteSpace(_imageUrl))
-            {
+
+    <EditForm Model="_model" OnValidSubmit="SaveBlogPostAsync">
+        <DataAnnotationsValidator />
+        <Microsoft.AspNetCore.Components.Forms.ValidationSummary />
+        <div class="row">
+            <div class="col-sm-6">
                 <div class="mb-3">
-                    <img src="@_imageUrl" style="height: 200px" />
+                    <label class="col-form-label ml-3">Title</label>
+                    <InputText @bind-Value="_model.Title" class="form-control form-control-sm" placeholder="Blog post title" />
+                    <ValidationMessage For="() => _model.Title" class="text-danger" />
                 </div>
-            }
-            <div class="mb-3">
-                <label class="col-form-label ml-3">
-                    <InputCheckbox @bind-Value="_model.IsFeatured" class="form-check-input" />
-                    Featured
-                </label>
-            </div>
-            <div class="mb-3">
-                <label class="col-form-label ml-3">
-                    <InputCheckbox @bind-Value="_model.IsPublished" class="form-check-input" />
-                    Published
-                </label>
-            </div>
-            @if (string.IsNullOrWhiteSpace(_errorMessage))
-            {
-                <div class="mb-3 ">
-                    <p class="text-danger">@_errorMessage</p>
+                <div class="mb-3">
+                    <label class="col-form-label ml-3">Category</label>
+                    <InputSelect @bind-Value="_model.CategoryID" class="form-control form-control-sm">
+                        <option value="0">Select category</option>
+                        @foreach (var c in _categories)
+                        {
+                            <option value="@c.CategoryID">@c.CategoryName</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="() => _model.CategoryID" class="text-danger" />
                 </div>
-            }
-            <div class="mb-3 ml-3">
-                <button type="submit" class="btn btn-success">Save</button>
+                <div class="mb-3">
+                    <label class="col-form-label ml-3">Introduction</label>
+                    <InputText @bind-Value="_model.Introduction" class="form-control form-control-sm" placeholder="Blog post introduction" />
+                    <ValidationMessage For="() => _model.Introduction" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label class="col-form-label ml-3 d-block">Upload image</label>
+                    <InputFile OnChange="HandleFileUpload" />
+
+                </div>
+                @if (!string.IsNullOrWhiteSpace(_imageUrl))
+                {
+                    <div class="mb-3">
+                        <img src="@_imageUrl" style="height: 200px" />
+                    </div>
+                }
+                <div class="mb-3">
+                    <label class="col-form-label ml-3">
+                        <InputCheckbox @bind-Value="_model.IsFeatured" class="form-check-input" />
+                        Featured
+                    </label>
+                </div>
+                <div class="mb-3">
+                    <label class="col-form-label ml-3">
+                        <InputCheckbox @bind-Value="_model.IsPublished" class="form-check-input" />
+                        Published
+                    </label>
+                </div>
+                @if (string.IsNullOrWhiteSpace(_errorMessage))
+                {
+                    <div class="mb-3 ">
+                        <p class="text-danger">@_errorMessage</p>
+                    </div>
+                }
+                <div class="mb-3 ml-3">
+                    <button type="submit" class="btn btn-outline-primary">Save</button>
+                </div>
+
             </div>
+            <div class="col-sm-6 d-flex">
+                <div class="mb-3 flex-grow-1">
+                    <label class="form-label">Content: </label>
+                    <BlazoredTextEditor @ref="@quillHtml" Placeholder="Enter content...">
+                        <ToolbarContent>
+                            <select class="ql-header">
+                                <option selected=""></option>
+                                <option value="1"></option>
+                                <option value="2"></option>
+                                <option value="3"></option>
+                                <option value="4"></option>
+                                <option value="5"></option>
+                            </select>
+                            <span class="ql-formats">
+                                <button class="ql-bold"></button>
+                                <button class="ql-italic"></button>
+                                <button class="ql-underline"></button>
+                                <button class="ql-strike"></button>
+                            </span>
+                            <span class="ql-formats">
+                                <select class="ql-color"></select>
+                                <select class="ql-background"></select>
+                            </span>
+                            <span class="ql-formats">
+                                <button class="ql-list" value="ordered"></button>
+                                <button class="ql-list" value="bullet"></button>
+                            </span>
+                            <span class="ql-formats">
+                                <button class="ql-link"></button>
+                            </span>
+                        </ToolbarContent>
+                        <EditorContent>
+                            @((MarkupString)_model.Content)
+                        </EditorContent>
+                    </BlazoredTextEditor>
 
-        </div>
-        <div class="col-sm-6 d-flex">
-            <div class="mb-3 flex-grow-1">
-                <label class="form-label">Content: </label>
-                <BlazoredTextEditor @ref="@quillHtml" Placeholder="Enter content...">
-                    <ToolbarContent>
-                        <select class="ql-header">
-                            <option selected=""></option>
-                            <option value="1"></option>
-                            <option value="2"></option>
-                            <option value="3"></option>
-                            <option value="4"></option>
-                            <option value="5"></option>
-                        </select>
-                        <span class="ql-formats">
-                            <button class="ql-bold"></button>
-                            <button class="ql-italic"></button>
-                            <button class="ql-underline"></button>
-                            <button class="ql-strike"></button>
-                        </span>
-                        <span class="ql-formats">
-                            <select class="ql-color"></select>
-                            <select class="ql-background"></select>
-                        </span>
-                        <span class="ql-formats">
-                            <button class="ql-list" value="ordered"></button>
-                            <button class="ql-list" value="bullet"></button>
-                        </span>
-                        <span class="ql-formats">
-                            <button class="ql-link"></button>
-                        </span>
-                    </ToolbarContent>
-                    <EditorContent>
-                        @((MarkupString)_model.Content)
-                    </EditorContent>
-                </BlazoredTextEditor>   
+                    @* <ValidationMessage For="()=> _model.Content" /> *@
+                </div>
 
-                @* <ValidationMessage For="()=> _model.Content" /> *@
             </div>
-
         </div>
-    </div>
 
-</EditForm>
+    </EditForm>
+</div>
 
 @code {
     [Parameter]
@@ -149,10 +153,10 @@
     protected override async Task OnInitializedAsync()
     {
         _categories = await CategoryService.GetCategoriesAsync();
-        if(ID.HasValue && ID > 0)
+        if (ID.HasValue && ID > 0)
         {
             var blogPost = await BlogPostService.GetBlogPostByIdAsync(ID.Value);
-            if(blogPost is null)
+            if (blogPost is null)
             {
                 NavigationManager.NavigateTo("/admin/manage-blog-posts", replace: true);
                 return;
@@ -171,7 +175,7 @@
 
         // data:image/type:base64,kjuhgfhdegfhjGJADSGKjsdgfjfd
         _imageUrl = $"data:image/{extension};base64,{Convert.ToBase64String(ms.ToArray())}";
-     
+
     }
 
     private async Task HandleFileUpload(InputFileChangeEventArgs e)
