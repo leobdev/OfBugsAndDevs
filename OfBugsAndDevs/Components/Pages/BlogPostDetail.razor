@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject IBlogPostService BlogPostService
 @inject IBlogPostAdminService BlogPostAdminService
+@inject IJSRuntime JS
 
 @if (_blogPost.BlogPostID > 0)
 {
@@ -38,7 +39,7 @@
         <div class="row justify-content-center">
             <div class="col-md-12 ">
                 <article class="article-post">
-                   @((MarkupString)_blogPost.Content)
+                    @((MarkupString)_blogPost.Content)
                 </article>
                 <SubscribeBox />
             </div>
@@ -79,4 +80,14 @@
         await BlogPostAdminService.SaveBlogPostAsync(blogPost, blogPost.UserID);
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("Prism.highlightAll");
+        }
+    }
+
 }
+
+
