@@ -106,4 +106,8 @@
     <Folder Include="wwwroot\assets\img\posts\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\OfBugsAndDevsLibrary\OfBugsAndDevsLibrary.csproj" />
+  </ItemGroup>
+
 </Project>

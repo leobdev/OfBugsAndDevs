@@ -1,9 +1,9 @@
 ﻿@page "/admin/manage-blog-posts/new"
 @page "/admin/manage-blog-posts/edit/{id:int?}"
+@rendermode InteractiveServer
 @using Blazored.TextEditor
 @using Microsoft.AspNetCore.Components.Sections
 @using OfBugsAndDevs.Data.Entities
-@rendermode InteractiveServer
 @inject IBlogPostAdminService BlogPostService
 @inject ICategoryService CategoryService
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -12,15 +12,14 @@
 @inject IJSRuntime JS
 
 <HeadContent>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet" />
+    <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <link href="//cdn.quilljs.com/1.3.6/quill.bubble.css" rel="stylesheet">
 </HeadContent>
 <SectionContent SectionName="scripts">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script src="_content/Blazored.TextEditor/quill-blot-formatter.min.js"></script>
     <script src="_content/Blazored.TextEditor/Blazored-BlazorQuill.js"></script>
+    
 </SectionContent>
 
 @if (_isLoading)
@@ -133,7 +132,7 @@
                         </EditorContent>
                     </BlazoredTextEditor>
 
-                    @* <ValidationMessage For="()=> _model.Content" /> *@
+
                 </div>
 
             </div>
@@ -149,10 +148,10 @@
     private string? _loadingText;
     private BlogPost _model = new();
     private Category[] _categories = [];
-    private BlazoredTextEditor? quillHtml;
     private string? _imageUrl;
     private IBrowserFile? _fileToUpload;
     private string? _errorMessage;
+    private BlazoredTextEditor? quillHtml;
 
     protected override async Task OnInitializedAsync()
     {
@@ -214,8 +213,8 @@
     }
     private async Task SaveBlogPostAsync()
     {
-
         var content = await quillHtml!.GetHTML();
+
         if (string.IsNullOrEmpty(content))
         {
             _errorMessage = "Content is required";
@@ -223,7 +222,7 @@
 
         }
 
-        content.Replace("<pre>", "<pre><code>").Replace("</pre>", "</code></pre>");
+
         _model.Content = content;
         _loadingText = "Saving blog post...";
         _isLoading = true;
@@ -248,8 +247,6 @@
         await Task.Delay(1000);
         return;
     }
-
-   
 
 
 }
