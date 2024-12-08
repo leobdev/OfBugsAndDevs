@@ -4,6 +4,7 @@
 @using Blazored.TextEditor
 @using Microsoft.AspNetCore.Components.Sections
 @using OfBugsAndDevs.Data.Entities
+@using System.Text.RegularExpressions
 @inject IBlogPostAdminService BlogPostService
 @inject ICategoryService CategoryService
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -11,19 +12,19 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JS
 
-<PageScript Src="./Components/Pages/Admin/SaveBlogPost.razor.js" />
-
+@* <PageScript Src="./Components/Pages/Admin/SaveBlogPost.razor.js" />
+ *@
 <HeadContent>
-   
+
     <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <link href="//cdn.quilljs.com/1.3.6/quill.bubble.css" rel="stylesheet">
 </HeadContent>
 <SectionContent SectionName="scripts">
- 
+
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script src="_content/Blazored.TextEditor/quill-blot-formatter.min.js"></script>
     <script src="_content/Blazored.TextEditor/Blazored-BlazorQuill.js"></script>
-    
+
 </SectionContent>
 
 @if (_isLoading)
@@ -100,7 +101,7 @@
 
             </div>
             <div class="col-sm-6 d-flex">
-                <div class="mb-3 flex-grow-1" id="quillEditorContainer">
+                <div class="mb-3 flex-grow-1" id="blazored-text-editor">
                     <label class="form-label">Content: </label>
                     <BlazoredTextEditor @ref="@quillHtml" Placeholder="Enter content...">
                         <ToolbarContent>
@@ -182,7 +183,6 @@
 
         // data:image/type:base64,kjuhgfhdegfhjGJADSGKjsdgfjfd
         _imageUrl = $"data:image/{extension};base64,{Convert.ToBase64String(ms.ToArray())}";
-
     }
 
     private async Task HandleFileUpload(InputFileChangeEventArgs e)
@@ -215,6 +215,7 @@
             return null;
         }
     }
+
     private async Task SaveBlogPostAsync()
     {
         var content = await quillHtml!.GetHTML();
@@ -226,10 +227,8 @@
 
         }
 
-
         _model.Content = content;
-        // Apply syntax highlighting to code blocks in the content
-        await JS.InvokeVoidAsync("applyHighlightingToQuillContent", "quillEditorContainer");
+
         _loadingText = "Saving blog post...";
         _isLoading = true;
 
@@ -242,11 +241,9 @@
             _model.Image = uploadFileUrl;
         }
 
-
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var userID = authState.User.GetUserId();
-
-
+        _model.Content = AddTextToPreBlocks(_model.Content);
         await BlogPostService.SaveBlogPostAsync(_model, userID);
         _fileToUpload = null;
         NavigationManager.NavigateTo("/admin/manage-blog-posts");
@@ -254,5 +251,30 @@
         return;
     }
 
+    static string AddTextToPreBlocks(string html)
+    {
+        // Define the regex pattern to match <pre> blocks with the specific class and capture content
+        string pattern = @"<pre class=""ql-syntax"" spellcheck=""false"">(.*?)<\/pre>";
+
+        // Use Regex.Replace with a match evaluator to modify the content inside the tags
+        string result = Regex.Replace(html, pattern, match =>
+        {
+            string codeContent = match.Groups[1].Value; // Extract the content inside the <pre> tag
+            return $@"<pre><code class=""language-csharp"">{codeContent}</code></pre>";
+        }, RegexOptions.Singleline); // Singleline mode to handle multi-line content
+
+        return result;
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        Console.WriteLine($"OnAfterRenderAsync triggered. firstRender = {firstRender}");
+        if (firstRender)
+        {
+            // Get the Quill editor instance and configure syntax highlighting
+            await JS.InvokeVoidAsync("initializeQuillHighlighting", "editor");
+        }
+    }
 
 }

@@ -1,34 +1,35 @@
 ﻿export function onLoad() {
-    console.log('Loaded');
+    const quill = new Quill('editor', {
+        modules: {
+            syntax: true,              // Include syntax module
+            toolbar: [['code-block']],  // Include button in toolbar
 
-    document.addEventListener("DOMContentLoaded", function () {
-        if (typeof hljs !== 'undefined') {
-            hljs.configure({ languages: ['csharp'] }); // Specify C# language for highlighting
-
-            function applySyntaxHighlighting(editor) {
-                editor.querySelectorAll('pre').forEach(block => {
-                    hljs.highlightElement(block);
-                });
-            }
-
-            window.applyHighlightingToQuillContent = (containerId) => {
-                const container = document.getElementById(containerId);
-                if (container) {
-                    const editor = container.querySelector('.ql-editor');
-                    if (editor) applySyntaxHighlighting(editor);
-                }
-            };
-        }
+        },
+        theme: 'snow'
     });
 }
 
 export function onUpdate() {
     console.log('Updated');
+    
+    
 }
 
 export function onDispose() {
     console.log('Disposed');
 }
+
+/*export function initializeQuillHighlighting(editorContainerId) {
+    const quill = new Quill(editorContainerId, {
+        modules: {
+            syntax: true,              // Include syntax module
+            toolbar: [['code-block']],  // Include button in toolbar
+            
+        },
+        theme: 'snow'
+    });
+}
+*/
 
 
 

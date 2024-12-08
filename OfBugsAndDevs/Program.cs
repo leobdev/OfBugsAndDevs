@@ -58,7 +58,7 @@ builder.Services.AddTransient<ISubscribeService, SubscribeService>();
 
 var app = builder.Build();
 
-await SeedAsync(app.Services);
+//await SeedAsync(app.Services);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

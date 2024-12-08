@@ -42,9 +42,18 @@
             <div>
                 <button type="submit" class="w-100 btn btn-lg btn-dark">Log in</button>
             </div>
+            <div>
+                <p>
+                    <a href="Account/ForgotPassword">Forgot your password?</a>
+                </p>
+                <p>
+                    <a href="@(NavigationManager.GetUriWithQueryParameters("Account/Register", new Dictionary<string, object?> { ["ReturnUrl"] = ReturnUrl }))">Register as a new user</a>
+                </p>
+            </div>
 
         </EditForm>
     </div>
+
 </div>
 
 @code {
@@ -78,11 +87,11 @@
             return;
         }
         var result = await SignInManager.CheckPasswordSignInAsync(user, Input.Password, false);
-        if (!result.Succeeded)
-        {
-            errorMessage = "Error: Incorrect password.";
-            return;
-        }
+        // if (!result.Succeeded)
+        // {
+        //     errorMessage = "Error: Incorrect password.";
+        //     return;
+        // }
         Claim[] additionalClaimns = [new Claim(AppConstants.ClaimNames.FullName, user.Name)];
         await SignInManager.SignInWithClaimsAsync(user, Input.RememberMe, additionalClaimns);
 

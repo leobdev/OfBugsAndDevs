@@ -11,7 +11,7 @@ namespace OfBugsAndDevs.Data
         public string Name { get; set; }
 
         [MaxLength(100)]
-        public string Avatar { get; set; }
+        public string Avatar { get; set; } = string.Empty;
 
     }
 

@@ -1,39 +1,20 @@
-﻿window.initializeQuillEditor = function (containerId, content) {
-    const container = document.getElementById(containerId);
-    if (!container) {
-        console.error("Quill container not found");
-        return;
-    }
+﻿function initializeQuillHighlighting(containerClass) {
+    // Find the Quill editor container using the provided class or ID
+    const editor = document.querySelector(`.${containerClass} .ql-editor`);
 
-    console.log("Initializing Quill with content:", content); // Debug line
+    if (!editor) return;
 
-    // Initialize the Quill editor with syntax highlighting and set content
-    const quill = new Quill(container, {
-        theme: 'snow',
-        modules: {
-            syntax: {
-                highlight: text => hljs.highlightAuto(text).value
-            },
-            toolbar: [
-                [{ header: [1, 2, 3, 4, 5, false] }],
-                ['bold', 'italic', 'underline', 'strike'],
-                [{ 'color': [] }, { 'background': [] }],
-                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                ['link', 'image', 'code-block']
-            ]
-        },
-        placeholder: 'Enter content...'
+    // Add syntax highlighting to code blocks on text changes
+    editor.addEventListener("input", () => {
+        const codeBlocks = editor.querySelectorAll("pre code");
+        codeBlocks.forEach((block) => {
+            hljs.highlightElement(block);
+        });
     });
 
-    // Load content if available
-    if (content) {
-        quill.clipboard.dangerouslyPasteHTML(content); // Use Quill’s HTML paste
-        console.log("Content loaded into Quill"); // Debug line
-    } else {
-        console.warn("No content provided to Quill");
-    }
-
-    // Store the editor instance globally for retrieval
-    window.quillInstances = window.quillInstances || {};
-    window.quillInstances[containerId] = quill;
-};
+    // Highlight existing code blocks on initialization
+    const initialCodeBlocks = editor.querySelectorAll("pre code");
+    initialCodeBlocks.forEach((block) => {
+        hljs.highlightElement(block);
+    });
+}
