@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OfBugsAndDevs.Data;
 
@@ -11,9 +12,11 @@ using OfBugsAndDevs.Data;
 namespace OfBugsAndDevs.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241218110516_008")]
+    partial class _008
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -317,6 +320,57 @@ namespace OfBugsAndDevs.Migrations
                     b.HasKey("CategoryID");
 
                     b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            CategoryID = 1,
+                            CategoryName = "C#",
+                            ShowOnNavBar = true,
+                            Slug = "c-sharp"
+                        },
+                        new
+                        {
+                            CategoryID = 2,
+                            CategoryName = "ASP.NET Core",
+                            ShowOnNavBar = true,
+                            Slug = "aspnet-core"
+                        },
+                        new
+                        {
+                            CategoryID = 3,
+                            CategoryName = "Blazor",
+                            ShowOnNavBar = true,
+                            Slug = "blazor"
+                        },
+                        new
+                        {
+                            CategoryID = 4,
+                            CategoryName = "SQL Server",
+                            ShowOnNavBar = true,
+                            Slug = "sql-server"
+                        },
+                        new
+                        {
+                            CategoryID = 5,
+                            CategoryName = "Entity Framework",
+                            ShowOnNavBar = true,
+                            Slug = "entity-framework"
+                        },
+                        new
+                        {
+                            CategoryID = 6,
+                            CategoryName = "Data Structures and Algorithms",
+                            ShowOnNavBar = true,
+                            Slug = "datastructures-and-algorithms"
+                        },
+                        new
+                        {
+                            CategoryID = 7,
+                            CategoryName = "Developer Life",
+                            ShowOnNavBar = true,
+                            Slug = "dev-life"
+                        });
                 });
 
             modelBuilder.Entity("OfBugsAndDevs.Data.Entities.Subscriber", b =>

@@ -11,6 +11,7 @@ using OfBugsAndDevs.Services;
 using OfBugsAndDevs.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.AddConsole();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -50,7 +51,6 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 builder.Services.AddBlazorBootstrap();
 builder.Services.AddTransient<ICategoryService, CategoryService>();
-builder.Services.AddTransient<ISeedService, SeedService>();
 builder.Services.AddTransient<IBlogPostAdminService, BlogPostAdminService>();
 builder.Services.AddTransient<IBlogPostService, BlogPostService>();
 builder.Services.AddTransient<ISubscribeService, SubscribeService>();
@@ -58,7 +58,8 @@ builder.Services.AddTransient<ISubscribeService, SubscribeService>();
 
 var app = builder.Build();
 
-//await SeedAsync(app.Services);
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -85,9 +86,5 @@ app.MapAdditionalIdentityEndpoints();
 
 app.Run();
 
-static async Task SeedAsync(IServiceProvider services)
-{
-    var scope = services.CreateScope();
-    var seedService = scope.ServiceProvider.GetRequiredService<ISeedService>();
-    await seedService.SeedDataAsync();
-}
+
+

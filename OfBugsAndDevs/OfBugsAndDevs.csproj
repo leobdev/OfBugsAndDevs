@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -6,6 +6,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-OfBugsAndDevs-bf396845-a09a-4134-8fa0-e9fe7abe78ff</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Data\Migrations\20241218110516_008.cs" />
+    <Compile Remove="Data\Migrations\20241218110516_008.Designer.cs" />
+    <Compile Remove="Data\Migrations\20241218115918_009.cs" />
+    <Compile Remove="Data\Migrations\20241218115918_009.Designer.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <Content Remove="wwwroot\assets\css\main.css" />
